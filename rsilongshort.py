@@ -25,10 +25,10 @@ START = st.sidebar.date_input(
 END = datetime.today().strftime('%Y-%m-%d')
 
 RISK_FREE_RATE_ANNUAL = st.sidebar.number_input(
-    "Annual Risk-Free Rate (e.g. 0.30 = 30%)",
+    "Annual Risk-Free Rate (e.g. 0.27 = 27%)",
     min_value=0.0,
     max_value=1.0,
-    value=0.30,
+    value=0.27,
     step=0.01
 )
 
@@ -38,9 +38,9 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("📐 Long / Short Strategy Parameters")
 
 rsi_days_ls = st.sidebar.slider("RSI Period (Long/Short)", 5, 30, 11)
-rsi_entry_long = st.sidebar.slider("Long Entry: RSI below", 10, 50, 33)
-rsi_entry_short = st.sidebar.slider("Short Entry: RSI above", 50, 90, 67)
-max_holding_days = st.sidebar.slider("Max Holding Days", 5, 60, 22)
+rsi_entry_long = st.sidebar.slider("Long Entry: RSI below", 10, 50, 34)
+rsi_entry_short = st.sidebar.slider("Short Entry: RSI above", 50, 90, 70)
+max_holding_days = st.sidebar.slider("Max Holding Days", 1, 60, 15)
 
 # =====================================================
 # DOWNLOAD FUNCTION
