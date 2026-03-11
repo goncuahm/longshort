@@ -15,7 +15,7 @@ st.set_page_config(layout="wide")
 
 st.sidebar.title("Strategy Settings")
 
-TICKER = st.sidebar.text_input("Ticker", value="ISDMR.IS")
+TICKER = st.sidebar.text_input("Ticker", value="EREGL.IS")
 
 START = st.sidebar.date_input(
     "Start Date",
