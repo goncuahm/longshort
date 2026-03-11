@@ -60,40 +60,40 @@ def download_stock_data(ticker, start, end):
 # RSI FUNCTION
 # =====================================================
 
-# def compute_rsi(series, length=14):
-#     delta = series.diff()
-#     gain = delta.clip(lower=0)
-#     loss = -delta.clip(upper=0)
-#     avg_gain = gain.rolling(length).mean()
-#     avg_loss = loss.rolling(length).mean()
-#     rs = avg_gain / avg_loss
-#     rsi = 100 - (100 / (1 + rs))
-#     return rsi
+def compute_rsi(series, length=14):
+    delta = series.diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    avg_gain = gain.rolling(length).mean()
+    avg_loss = loss.rolling(length).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
 
 # =====================================================
 # RSI PIVOT BACKTEST (original strategy)
 # =====================================================
 
-def compute_rsi(series, length=14):
-    """Wilder's RSI — matches TradingView exactly."""
-    delta = series.diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
+# def compute_rsi(series, length=14):
+#     """Wilder's RSI — matches TradingView exactly."""
+#     delta = series.diff()
+#     gain = delta.clip(lower=0)
+#     loss = -delta.clip(upper=0)
 
-    # Seed: plain average of the first `length` bars (Wilder's initialisation)
-    avg_gain = gain.copy() * np.nan
-    avg_loss = loss.copy() * np.nan
+#     # Seed: plain average of the first `length` bars (Wilder's initialisation)
+#     avg_gain = gain.copy() * np.nan
+#     avg_loss = loss.copy() * np.nan
 
-    avg_gain.iloc[length] = gain.iloc[1:length + 1].mean()
-    avg_loss.iloc[length] = loss.iloc[1:length + 1].mean()
+#     avg_gain.iloc[length] = gain.iloc[1:length + 1].mean()
+#     avg_loss.iloc[length] = loss.iloc[1:length + 1].mean()
 
-    # Wilder's smoothing: each bar blends the previous average with today's value
-    for i in range(length + 1, len(series)):
-        avg_gain.iloc[i] = (avg_gain.iloc[i - 1] * (length - 1) + gain.iloc[i]) / length
-        avg_loss.iloc[i] = (avg_loss.iloc[i - 1] * (length - 1) + loss.iloc[i]) / length
+#     # Wilder's smoothing: each bar blends the previous average with today's value
+#     for i in range(length + 1, len(series)):
+#         avg_gain.iloc[i] = (avg_gain.iloc[i - 1] * (length - 1) + gain.iloc[i]) / length
+#         avg_loss.iloc[i] = (avg_loss.iloc[i - 1] * (length - 1) + loss.iloc[i]) / length
 
-    rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs))
+#     rs = avg_gain / avg_loss
+#     return 100 - (100 / (1 + rs))
     
 def backtest_strategy(df, rsi_len, pivot_lb, bottom_th, peak_th, risk_free_rate):
     df = df.copy()
