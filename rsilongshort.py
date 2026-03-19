@@ -72,9 +72,9 @@ def style_ax(ax):
 # ─────────────────────────────────────────────────────────────
 st.sidebar.title("⚙️ Configuration")
 
-TICKER           = st.sidebar.text_input("Ticker", value="THYAO.IS")
-START            = st.sidebar.date_input("Start Date",  value=pd.to_datetime("2022-01-01"))
-END              = st.sidebar.date_input("End Date",    value=pd.to_datetime("2026-02-28"))
+TICKER           = st.sidebar.text_input("Ticker", value="EREGL.IS")
+START            = st.sidebar.date_input("Start Date",  value=pd.to_datetime("2020-01-01"))
+END              = st.sidebar.date_input("End Date",    value=pd.to_datetime("2027-02-28"))
 TRANSACTION_COST = st.sidebar.number_input("Transaction Cost (per trade)",
                                             value=0.0, step=0.001, format="%.3f")
 
@@ -85,7 +85,7 @@ SHORT_SL_PCT = st.sidebar.slider("SHORT Stop-Loss %",  1, 30, 10) / 100
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Strategy Side")
-SHORT_SIDE = st.sidebar.checkbox("Enable SHORT side", value=True)
+SHORT_SIDE = st.sidebar.checkbox("Enable SHORT side", value=False)
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Detection Parameters")
@@ -437,11 +437,13 @@ with st.spinner("Optimising take-profit levels (0.5%–20% in 0.5% steps)..."):
                 short_tp=stp, short_sl=SHORT_SL_PCT,
                 short_side=SHORT_SIDE)
             score = cum[-1]   # total in-sample P&L
-            opt_results.append({'long_tp': ltp, 'short_tp': stp, 'score': score})
+            opt_results.append({'long_tp': round(ltp, 3),
+                                 'short_tp': round(stp, 3),
+                                 'score': score})
             if score > best_score:
                 best_score    = score
-                best_long_tp  = ltp
-                best_short_tp = stp
+                best_long_tp  = round(ltp, 3)
+                best_short_tp = round(stp, 3)
 
 opt_df = pd.DataFrame(opt_results)
 
@@ -550,28 +552,31 @@ metric_card(c2, "🟠 Out-of-Sample (Test)", m_te)
 # ─────────────────────────────────────────────────────────────
 with st.expander("🔍 Take-Profit Optimisation Results", expanded=True):
     if SHORT_SIDE:
-        # Heatmap: long_tp vs short_tp
+        # Round to 3 dp to eliminate floating-point noise from np.arange
         pivot = opt_df.pivot(index='long_tp', columns='short_tp', values='score') * 100
+        pivot.index   = pivot.index.round(3)
+        pivot.columns = pivot.columns.round(3)
+
         fig_heat, ax_h = plt.subplots(figsize=(12, 6), facecolor=BG)
         style_ax(ax_h)
         im = ax_h.imshow(pivot.values, aspect='auto', cmap='RdYlGn',
                           origin='lower')
         ax_h.set_xticks(range(len(pivot.columns)))
-        ax_h.set_xticklabels([f"{c*100:.0f}%" for c in pivot.columns],
-                              rotation=45, fontsize=7, color=WHITE)
+        ax_h.set_xticklabels([f"{c*100:.1f}%" for c in pivot.columns],
+                              rotation=45, fontsize=6, color=WHITE)
         ax_h.set_yticks(range(len(pivot.index)))
-        ax_h.set_yticklabels([f"{r*100:.0f}%" for r in pivot.index],
-                              fontsize=7, color=WHITE)
+        ax_h.set_yticklabels([f"{r*100:.1f}%" for r in pivot.index],
+                              fontsize=6, color=WHITE)
         ax_h.set_xlabel('SHORT TP %', color=WHITE)
         ax_h.set_ylabel('LONG TP %', color=WHITE)
         ax_h.set_title(f'TP Optimisation Heatmap (In-Sample P&L %)  '
-                       f'— Best: LONG {best_long_tp*100:.0f}%  '
-                       f'SHORT {best_short_tp*100:.0f}%',
+                       f'— Best: LONG {best_long_tp*100:.1f}%  '
+                       f'SHORT {best_short_tp*100:.1f}%',
                        color=GOLD, fontsize=10)
         plt.colorbar(im, ax=ax_h)
-        # Mark best
-        bi = list(pivot.index).index(round(best_long_tp, 2))
-        bj = list(pivot.columns).index(round(best_short_tp, 2))
+        # Mark best — round to 3dp to match the rounded pivot index
+        bi = list(pivot.index).index(round(best_long_tp,  3))
+        bj = list(pivot.columns).index(round(best_short_tp, 3))
         ax_h.plot(bj, bi, '*', color=GOLD, ms=14, zorder=5)
         fig_heat.tight_layout()
         st.pyplot(fig_heat)
@@ -580,9 +585,9 @@ with st.expander("🔍 Take-Profit Optimisation Results", expanded=True):
         fig_line, ax_l = plt.subplots(figsize=(10, 4), facecolor=BG)
         style_ax(ax_l)
         ax_l.plot(opt_df['long_tp'] * 100, opt_df['score'] * 100,
-                  color=TEAL, lw=2, marker='o', ms=5)
+                  color=TEAL, lw=2, marker='o', ms=4)
         ax_l.axvline(best_long_tp * 100, color=GOLD, lw=2, ls='--',
-                     label=f'Optimal = {best_long_tp*100:.0f}%')
+                     label=f'Optimal = {best_long_tp*100:.1f}%')
         ax_l.set_xlabel('LONG TP %', color=WHITE)
         ax_l.set_ylabel('In-Sample P&L %', color=WHITE)
         ax_l.set_title('LONG TP Optimisation (In-Sample)', color=GOLD)
