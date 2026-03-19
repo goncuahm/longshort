@@ -420,9 +420,9 @@ def metrics_from(pnl, cum_pnl, prices, trades):
 # ─────────────────────────────────────────────────────────────
 # 7. OPTIMISE TP LEVELS  (1% – 20% in 1% steps)
 # ─────────────────────────────────────────────────────────────
-TP_RANGE = np.arange(0.01, 0.21, 0.01)   # 1% to 20%
+TP_RANGE = np.arange(0.005, 0.205, 0.005)   # 0.5% to 20% in 0.5% steps
 
-with st.spinner("Optimising take-profit levels (1%–20%)..."):
+with st.spinner("Optimising take-profit levels (0.5%–20% in 0.5% steps)..."):
     best_long_tp  = 0.05
     best_short_tp = 0.06
     best_score    = -np.inf
